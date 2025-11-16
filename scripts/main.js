@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initEditor();
     initTerminal();
+    
 
 
 
@@ -267,6 +268,7 @@ function initTerminal() {
         output.appendChild(respuestaLinea);
 
         output.scrollTop = output.scrollHeight;
+        
     }
 }
 
@@ -328,3 +330,5 @@ function closeBrowserWindow() {
     if (iframe) iframe.srcdoc = "";
     if (wrapper) wrapper.classList.add("hidden");
 }
+// modulo inicio de recorido
+
