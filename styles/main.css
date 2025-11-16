@@ -32,7 +32,7 @@ body {
     "sidebar explorer statusbar";
   grid-template-columns: var(--sidebar-width) var(--explorer-width) 1fr;
   grid-template-rows: 1fr auto var(--statusbar-height);
-  height: 100vh;
+  height: calc(100vh - var(--statusbar-height));
 }
 
 /* Sidebar */
@@ -368,8 +368,12 @@ body {
 
 /* Status bar */
 .status-bar {
-  grid-area: statusbar;
-  background: #007acc; /* azul VSCode */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--statusbar-height);
+  background: #007acc;
   border-top: 1px solid #005a9e;
   display: flex;
   align-items: center;
@@ -378,7 +382,7 @@ body {
   font-size: 13px;
   color: #ffffff;
   font-family: var(--font-mono);
-  height: var(--statusbar-height);
+  z-index: 999;
 }
 
 
