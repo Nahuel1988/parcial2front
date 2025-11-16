@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio VSCode</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <script type="module" src="scripts/main.js"></script>
+</head>
+
+<body>
+
+    <body>
+        <div class="vscode-layout">
+
+            <!-- modulo sidebar---------------------------------------------------------------------------- -->
+            <div class="sidebar">
+                <div class="sidebar-top">
+                    <button type="button" class="sidebar-icon active" title="Explorador" data-panel="explorer">
+                        <img src="assets/icons/files.svg" alt="Explorador" />
+                    </button>
+                    <button type="button" class="sidebar-icon" title="Buscar" data-panel="search">
+                        <img src="assets/icons/search.svg" alt="Buscar" />
+                    </button>
+                    <button type="button" class="sidebar-icon" title="Git" data-panel="git">
+                        <img src="assets/icons/github-inverted.svg" alt="Git" />
+                    </button>
+                    <button type="button" class="sidebar-icon" title="Extensiones" data-panel="extensions">
+                        <img src="assets/icons/extensions.svg" alt="Extensiones" />
+                    </button>
+                </div>
+                <div class="sidebar-bottom">
+                    <button type="button" class="sidebar-icon" title="Configuración" data-panel="settings">
+                        <img src="assets/icons/settings-gear.svg" alt="Configuración" />
+                    </button>
+                    <button type="button" class="sidebar-icon" title="Cuenta" data-panel="account">
+                        <img src="assets/icons/account.svg" alt="Cuenta" />
+                    </button>
+                </div>
+            </div>
+            <!-- modulo explorer---------------------------------------------------------------------------- -->
+            <div class="explorer">
+               <ul class="file-tree"></ul>
+            </div>
+            <!-- modulo editor---------------------------------------------------------------------------- -->
+            <div class="editor">
+                <div class="tabs"></div>
+                <div class="preview"></div>
+
+            </div>
+            <!-- modulo terminal---------------------------------------------------------------------------- -->
+            <div class="terminal">
+                <div class="placeholder">Terminal</div>
+            </div>
+            <!-- modulo status bar---------------------------------------------------------------------------- -->
+            <div class="status-bar">
+                <span>Estado: layout base cargado</span>
+            </div>
+            <!-- fin modulo status bar---------------------------------------------------------------------------- -->
+        </div>
+    </body>
+
+</body>
+<script type="module" src="scripts/main.js"></script>
+
+
+</html>
