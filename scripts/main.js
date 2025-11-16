@@ -5,21 +5,35 @@ document.addEventListener("DOMContentLoaded", () => {
     //initExplorer();
     initEditor();
     initTerminal();
-    
+
+    document.getElementById("close-browser")?.addEventListener("click", closeBrowserWindow);
+    window.addEventListener("message", e => {
+        const { tipo, href } = e.data;
+        if (tipo === "navegar" && typeof href === "string") {
+            const cleanHref = href.replace(/^\.?\/?/, ""); // quitar ./ o / inicial
+            const html = archivos[cleanHref];
+            if (!html) {
+                console.warn("Archivo no encontrado:", cleanHref);
+                return;
+            }
+            openBrowserWindow(cleanHref, html, archivos);
+        }
+    });
+
 
 });
 let archivos = {};
 
-    fetch("archivos.json")
-        .then(res => {
-            if (!res.ok) throw new Error("No se pudo cargar archivos.json");
-            return res.json();
-        })
-        .then(data => {
-            archivos = data;
-            initExplorer(); // solo iniciar explorer después de tener archivos
-        })
-        .catch(err => console.error("Error al cargar archivos.json:", err));
+fetch("archivos.json")
+    .then(res => {
+        if (!res.ok) throw new Error("No se pudo cargar archivos.json");
+        return res.json();
+    })
+    .then(data => {
+        archivos = data;
+        initExplorer(); // solo iniciar explorer después de tener archivos
+    })
+    .catch(err => console.error("Error al cargar archivos.json:", err));
 function detectarTipo(path) {
     const p = path.toLowerCase();
     if (p.endsWith(".html") || p.endsWith(".htm")) return "browser";
@@ -88,58 +102,47 @@ function initEditor() {
         preview.textContent = "// Bienvenido al editor\n\n// Seleccioná un archivo para comenzar...";
     }
 }
-
-// 🟥 TERMINAL
-function initTerminal() {
-    const terminal = document.querySelector(".terminal-output");
-    if (terminal) {
-        terminal.textContent = "$ terminal > listo para comandos";
-    }
-}
 function openTab(path, name) {
-  const tabs = document.querySelector(".tabs");
-  const preview = document.querySelector(".preview");
+    const tabs = document.querySelector(".tabs");
+    const preview = document.querySelector(".preview");
 
-  let existingTab = document.querySelector(`.tab[data-path="${path}"]`);
-  if (existingTab) {
+    let existingTab = document.querySelector(`.tab[data-path="${path}"]`);
+    if (existingTab) {
+        activateTab(path);
+        return;
+    }
+
+    const tipo = detectarTipo(path);
+    const contenido = archivos[path];
+
+    // Crear pestaña
+    const tab = document.createElement("div");
+    tab.className = "tab";
+    tab.dataset.path = path;
+    tab.dataset.tipo = tipo;
+    tab.innerHTML = `<span>${name}</span><button class="close-tab" title="Cerrar">×</button>`;
+    tabs.appendChild(tab);
+
+    // Crear contenido
+    const content = document.createElement("div");
+    content.className = "tab-content";
+    content.dataset.path = path;
+
+    if (tipo === "editor") {
+        content.textContent = typeof contenido === "string" ? contenido : `// Archivo vacío: ${path}`;
+    } else if (tipo === "terminal") {
+        content.innerHTML = `<pre class="terminal-output">$ ${path} > ${contenido || "sin contenido"}</pre>`;
+    } else if (tipo === "browser") {
+        const html = archivos[path] || "<p>Sin contenido</p>";
+        openBrowserWindow(path, html, archivos);
+        return;
+    }
+
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    preview.appendChild(content);
+    content.classList.add("active");
+
     activateTab(path);
-    return;
-  }
-
-  const tipo = detectarTipo(path);
-  const contenido = archivos[path];
-
-  // Crear pestaña
-  const tab = document.createElement("div");
-  tab.className = "tab";
-  tab.dataset.path = path;
-  tab.dataset.tipo = tipo;
-  tab.innerHTML = `<span>${name}</span><button class="close-tab" title="Cerrar">×</button>`;
-  tabs.appendChild(tab);
-
-  // Crear contenido
-  const content = document.createElement("div");
-  content.className = "tab-content";
-  content.dataset.path = path;
-
-  if (tipo === "editor") {
-    content.textContent = typeof contenido === "string" ? contenido : `// Archivo vacío: ${path}`;
-  } else if (tipo === "terminal") {
-    content.innerHTML = `<pre class="terminal-output">$ ${path} > ${contenido || "sin contenido"}</pre>`;
-  } else if (tipo === "browser") {
-    content.innerHTML = `
-      <iframe
-        srcdoc="${contenido?.replace(/"/g, '&quot;') || '<p>Sin contenido</p>'}"
-        sandbox="allow-scripts"
-        style="width:100%; height:100%; border:none; background:#fff;"
-      ></iframe>`;
-  }
-
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-  preview.appendChild(content);
-  content.classList.add("active");
-
-  activateTab(path);
 }
 
 function activateTab(path) {
@@ -152,6 +155,14 @@ function activateTab(path) {
     if (tab) tab.classList.add("active");
     if (content) content.classList.add("active");
 }
+// 🟥 TERMINAL
+function initTerminal() {
+    const terminal = document.querySelector(".terminal-output");
+    if (terminal) {
+        terminal.textContent = "$ terminal > listo para comandos";
+    }
+}
+
 
 document.addEventListener("click", e => {
     const closeBtn = e.target.closest(".close-tab");
@@ -212,4 +223,51 @@ function renderFile(item, li) {
         li.classList.add("active");
         openTab(item.path, item.name);
     });
+}
+
+/// modulo browser
+function openBrowserWindow(path, htmlContent, archivos) {
+    const iframe = document.getElementById("browser-frame");
+    const wrapper = document.querySelector(".browser-window");
+
+    const base = path.replace(/\.html?$/, "");
+    const css = archivos[`${base}.css`] || "";
+    const js = archivos[`${base}.js`] || "";
+
+    const fullDoc = `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="utf-8">
+        <title>Vista previa - ${path}</title>
+        <style>${css}</style>
+      </head>
+      <body>
+        ${htmlContent}
+        <script>
+          document.addEventListener('click', e => {
+            const link = e.target.closest('a[href]');
+            if (link && link.getAttribute('href')) {
+              e.preventDefault();
+              const href = link.getAttribute('href');
+              window.parent.postMessage({ tipo: 'navegar', href: href }, '*');
+            }
+          });
+          ${js}
+        </script>
+      </body>
+    </html>
+  `;
+
+    if (iframe) iframe.srcdoc = fullDoc;
+    if (wrapper) wrapper.classList.remove("hidden");
+}
+
+
+function closeBrowserWindow() {
+    const iframe = document.getElementById("browser-frame");
+    const wrapper = document.querySelector(".browser-window");
+
+    if (iframe) iframe.srcdoc = "";
+    if (wrapper) wrapper.classList.add("hidden");
 }
