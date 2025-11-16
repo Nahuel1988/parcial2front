@@ -42,23 +42,26 @@
             <ul class="file-tree"></ul>
         </div>
         <!-- modulo editor---------------------------------------------------------------------------- -->
-        <div class="main-layout">
-            <div class="editor-area">
-                <div class="tabs"></div>
-                <div class="preview"></div>
-            </div>
-            <div class="terminal">
-                <div class="terminal-tabs">
-                    <div class="terminal-tab active">TERMINAL</div>
+        <main class="main-column">
+            <section class="editor-area">
+                <div class="tabs" role="tablist" aria-label="Pestañas">
+                    <!-- pestañas se crean dinámicamente -->
                 </div>
+                <div class="preview" role="main">
+                    <!-- placeholder inicial -->
+                    <div class="tab-content active">Selecciona un archivo para ver su contenido.</div>
+                    <button class="preview-button" title="Ver en navegador">▶ Ver en navegador</button>
+                </div>
+            </section>
+
+            <section class="terminal" aria-label="Terminal">
+                <div class="terminal-header">Terminal</div>
                 <div class="terminal-output" id="terminal-output">
-                    $ Bienvenido a la terminal
+                    > Terminal listo
                 </div>
-            </div>
-        </div>
-
-
-        <!-- modulo status bar---------------------------------------------------------------------------- -->
+            </section>
+        </main>
+       <!-- modulo status bar---------------------------------------------------------------------------- -->
         <div class="status-bar">
             <span>Estado: layout base cargado</span>
         </div>

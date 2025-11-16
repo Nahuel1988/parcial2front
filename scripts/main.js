@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initExplorer((item) => {
         openTab(item.path, item.name); // o lo que uses para mostrar el archivo
     });
+    console.log("DOM completamente cargado");
+    //initExplorer(onFileSelect);
 
     initEditor();
     initTerminal();
@@ -51,6 +53,18 @@ function initSidebar() {
 
 // 🟩 EXPLORER
 
+/* function onFileSelect(item) {
+  console.log("Archivo seleccionado:", item.name);
+
+  // Ejemplo de lógica según tipo de ejecución
+  if (item.execution === "editor") {
+    abrirEnEditor(item.path, item.name);
+  } else if (item.execution === "browser") {
+    abrirEnNavegador(item.path);
+  } else {
+    console.warn("Tipo de ejecución desconocido:", item.execution);
+  }
+} */
 
 
 function initExplorer(onFileSelect) {
@@ -135,6 +149,19 @@ function initEditor() {
         preview.textContent = "// Bienvenido al editor\n\n// Seleccioná un archivo para comenzar...";
     }
 }
+function escribirLentoEnEditor(elemento, texto, velocidad = 20) {
+  elemento.textContent = "";
+  let i = 0;
+
+  function escribir() {
+    if (i < texto.length) {
+      elemento.textContent += texto[i];
+      i++;
+      setTimeout(escribir, velocidad);
+    }
+  }
+  escribir();
+}
 function openTab(path, name) {
     const tabs = document.querySelector(".tabs");
     const preview = document.querySelector(".preview");
@@ -162,14 +189,17 @@ function openTab(path, name) {
     content.dataset.path = path;
 
     if (tipo === "editor") {
-        content.textContent = typeof contenido === "string" ? contenido : `// Archivo vacío: ${path}`;
-    } else if (tipo === "terminal") {
+        const texto = typeof contenido === "string" ? contenido : `// Archivo vacío: ${path}`;
+        escribirLentoEnEditor(content, texto, 15);
+    }
+    else if (tipo === "terminal") {
         content.innerHTML = `<pre class="terminal-output">$ ${path} > ${contenido || "sin contenido"}</pre>`;
     } else if (tipo === "browser") {
         content.textContent = typeof contenido === "string" ? contenido : "";
         const btn = document.createElement("button");
         btn.className = "preview-button";
         btn.textContent = "▶ Ver en navegador";
+        
         btn.addEventListener("click", () => {
             const htmlActual = content.textContent;
             openBrowserWindow(path, htmlActual, archivos);
