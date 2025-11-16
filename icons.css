@@ -1,0 +1,28 @@
+/* .folder-icon {
+  background-image: url('default_folder.svg');
+}
+
+.folder.open .folder-icon {
+  background-image: url('default_folder_opened.svg');
+}
+
+.chevron {
+  width: 10px;
+  height: 10px;
+  background-image: url('chevron-right.svg');
+  transition: transform 0.2s ease;
+}
+
+.folder.open .chevron {
+  background-image: url('chevron-down.svg');
+}
+
+.file-icon[data-ext="html"]  { background-image: url('file_type_html.svg'); }
+.file-icon[data-ext="css"]   { background-image: url('file_type_css.svg'); }
+.file-icon[data-ext="js"]    { background-image: url('file_type_js.svg'); }
+.file-icon[data-ext="json"]  { background-image: url('file_type_json.svg'); }
+.file-icon[data-ext="txt"]   { background-image: url('file_type_txt.svg'); }
+.file-icon[data-ext="md"]    { background-image: url('file_type_md.svg'); }
+.file-icon[data-ext] {
+    background-image: url('files.svg'); 
+} */

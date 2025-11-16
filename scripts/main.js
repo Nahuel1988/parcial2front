@@ -2,23 +2,14 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado");
 
     initSidebar();
-    //initExplorer();
+    initExplorer((item) => {
+        openTab(item.path, item.name); // o lo que uses para mostrar el archivo
+    });
+
     initEditor();
     initTerminal();
 
-    document.getElementById("close-browser")?.addEventListener("click", closeBrowserWindow);
-    window.addEventListener("message", e => {
-        const { tipo, href } = e.data;
-        if (tipo === "navegar" && typeof href === "string") {
-            const cleanHref = href.replace(/^\.?\/?/, ""); // quitar ./ o / inicial
-            const html = archivos[cleanHref];
-            if (!html) {
-                console.warn("Archivo no encontrado:", cleanHref);
-                return;
-            }
-            openBrowserWindow(cleanHref, html, archivos);
-        }
-    });
+
 
 
 });
@@ -62,39 +53,81 @@ function initSidebar() {
 
 
 
-function initExplorer() {
-    const folders = document.querySelectorAll(".folder-header");
-    const files = document.querySelectorAll(".file");
+function initExplorer(onFileSelect) {
+    const iconPath = "assets/icons/";
 
     fetch("arbol_carpetas.json")
         .then(res => {
             if (!res.ok) throw new Error("No se pudo cargar arbol_carpetas.json");
             return res.json();
         })
-
         .then(data => {
             const tree = document.querySelector(".file-tree");
-            if (tree) renderTree(data, tree);
+            if (tree) renderTree(data, tree, iconPath, onFileSelect);
         })
-        .catch(err => console.error("Error al cargar árbol:", err));
+        .catch(err => console.error("Error al cargar árbol de carpetas:", err));
+}
 
-
-    folders.forEach(header => {
-        header.addEventListener("click", () => {
-            const folder = header.parentElement;
-            folder.classList.toggle("open");
-        });
-    });
-
-    files.forEach(file => {
-        file.addEventListener("click", () => {
-            const path = file.dataset.path;
-            const name = file.textContent;
-
-            openTab(path, name);
-        });
+function renderTree(data, container, iconPath, onFileSelect) {
+    data.forEach(item => {
+        const li = document.createElement("li");
+        if (item.type === "folder") {
+            renderFolder(item, li, iconPath, onFileSelect);
+        } else {
+            renderFile(item, li, iconPath, onFileSelect);
+        }
+        container.appendChild(li);
     });
 }
+
+function renderFolder(item, li, iconPath, onFileSelect) {
+    li.className = "folder";
+    li.innerHTML = `
+    <div class="folder-header" title="Carpeta: ${item.name}">
+      <img src="${iconPath}chevron-right.svg" class="arrow" />
+      <img src="${iconPath}default_folder.svg" class="folder-icon" />
+      <span>${item.name}</span>
+    </div>
+    <ul class="file-list"></ul>
+  `;
+
+    const fileList = li.querySelector(".file-list");
+    renderTree(item.children, fileList, iconPath, onFileSelect);
+
+    const header = li.querySelector(".folder-header");
+    const arrow = li.querySelector(".arrow");
+    const folderIcon = li.querySelector(".folder-icon");
+
+    header.addEventListener("click", () => {
+        li.classList.toggle("open");
+        const isOpen = li.classList.contains("open");
+        arrow.src = `${iconPath}${isOpen ? "chevron-down" : "chevron-right"}.svg`;
+        folderIcon.src = `${iconPath}${isOpen ? "default_folder_opened" : "default_folder"}.svg`;
+    });
+}
+
+function renderFile(item, li, iconPath, onFileSelect) {
+    const fileIcon = getIconForExtension(item.name, iconPath);
+    li.className = "file";
+    li.innerHTML = `
+    <img src="${fileIcon}" class="icon" />
+    <span>${item.name}</span>
+  `;
+
+    li.addEventListener("click", () => {
+        document.querySelectorAll(".file").forEach(f => f.classList.remove("active"));
+        li.classList.add("active");
+        onFileSelect(item);
+    });
+}
+
+function getIconForExtension(filename, iconPath) {
+    const ext = filename.split(".").pop().toLowerCase();
+    const knownIcons = ["html", "js", "css", "json", "md", "txt", "sh"];
+    return `${iconPath}file_type_${knownIcons.includes(ext) ? ext : "default"}.svg`;
+}
+
+
 // 🟨 EDITOR
 function initEditor() {
     const preview = document.querySelector(".code-area");
@@ -133,11 +166,18 @@ function openTab(path, name) {
     } else if (tipo === "terminal") {
         content.innerHTML = `<pre class="terminal-output">$ ${path} > ${contenido || "sin contenido"}</pre>`;
     } else if (tipo === "browser") {
-        const html = archivos[path] || "<p>Sin contenido</p>";
-        openBrowserWindow(path, html, archivos);
-        return;
+        content.textContent = typeof contenido === "string" ? contenido : "";
+        const btn = document.createElement("button");
+        btn.className = "preview-button";
+        btn.textContent = "▶ Ver en navegador";
+        btn.addEventListener("click", () => {
+            const htmlActual = content.textContent;
+            openBrowserWindow(path, htmlActual, archivos);
+        });
+        content.appendChild(btn);
     }
 
+    document.querySelector(".preview").appendChild(content);
     document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
     preview.appendChild(content);
     content.classList.add("active");
@@ -155,15 +195,6 @@ function activateTab(path) {
     if (tab) tab.classList.add("active");
     if (content) content.classList.add("active");
 }
-// 🟥 TERMINAL
-function initTerminal() {
-    const terminal = document.querySelector(".terminal-output");
-    if (terminal) {
-        terminal.textContent = "$ terminal > listo para comandos";
-    }
-}
-
-
 document.addEventListener("click", e => {
     const closeBtn = e.target.closest(".close-tab");
     if (closeBtn) {
@@ -186,43 +217,27 @@ document.addEventListener("click", e => {
         activateTab(clickedTab.dataset.path);
     }
 });
-function renderTree(data, container) {
-    data.forEach(item => {
-        const li = document.createElement("li");
+// 🟥 TERMINAL
+function initTerminal() {
 
-        if (item.type === "folder") {
-            renderFolder(item, li);
-        } else {
-            renderFile(item, li);
-        }
+    const terminal = document.querySelector(".terminal-output");
+    if (terminal) {
+        terminal.textContent = "$ terminal > listo para comandos";
+    }
+    function simularComando(comando, respuesta) {
+        const output = document.getElementById("terminal-output");
+        if (!output) return;
 
-        container.appendChild(li);
-    });
-}
+        const linea = document.createElement("div");
+        linea.textContent = `$ ${comando}`;
+        output.appendChild(linea);
 
-function renderFolder(item, li) {
-    li.className = "folder";
-    li.innerHTML = `<div class="folder-header">${item.name}</div><ul class="file-list"></ul>`;
+        const respuestaLinea = document.createElement("div");
+        respuestaLinea.textContent = respuesta;
+        output.appendChild(respuestaLinea);
 
-    const fileList = li.querySelector(".file-list");
-    renderTree(item.children, fileList);
-
-    const header = li.querySelector(".folder-header");
-    header.addEventListener("click", () => {
-        li.classList.toggle("open");
-    });
-}
-
-function renderFile(item, li) {
-    li.className = "file";
-    li.dataset.path = item.path;
-    li.textContent = item.name;
-
-    li.addEventListener("click", () => {
-        document.querySelectorAll(".file").forEach(f => f.classList.remove("active"));
-        li.classList.add("active");
-        openTab(item.path, item.name);
-    });
+        output.scrollTop = output.scrollHeight;
+    }
 }
 
 /// modulo browser
@@ -262,7 +277,19 @@ function openBrowserWindow(path, htmlContent, archivos) {
     if (iframe) iframe.srcdoc = fullDoc;
     if (wrapper) wrapper.classList.remove("hidden");
 }
-
+document.getElementById("close-browser")?.addEventListener("click", closeBrowserWindow);
+window.addEventListener("message", e => {
+    const { tipo, href } = e.data;
+    if (tipo === "navegar" && typeof href === "string") {
+        const cleanHref = href.replace(/^\.?\/?/, ""); // quitar ./ o / inicial
+        const html = archivos[cleanHref];
+        if (!html) {
+            console.warn("Archivo no encontrado:", cleanHref);
+            return;
+        }
+        openBrowserWindow(cleanHref, html, archivos);
+    }
+});
 
 function closeBrowserWindow() {
     const iframe = document.getElementById("browser-frame");

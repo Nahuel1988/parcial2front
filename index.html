@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio VSCode</title>
     <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="icons.css">
     <script type="module" src="scripts/main.js"></script>
 </head>
 
@@ -41,14 +42,22 @@
             <ul class="file-tree"></ul>
         </div>
         <!-- modulo editor---------------------------------------------------------------------------- -->
-        <div class="editor">
-            <div class="tabs"></div>
-            <div class="preview"></div>
+        <div class="main-layout">
+            <div class="editor-area">
+                <div class="tabs"></div>
+                <div class="preview"></div>
+            </div>
+            <div class="terminal">
+                <div class="terminal-tabs">
+                    <div class="terminal-tab active">TERMINAL</div>
+                </div>
+                <div class="terminal-output" id="terminal-output">
+                    $ Bienvenido a la terminal
+                </div>
+            </div>
         </div>
-        <!-- modulo terminal---------------------------------------------------------------------------- -->
-        <div class="terminal">
-            <div class="placeholder">Terminal</div>
-        </div>
+
+
         <!-- modulo status bar---------------------------------------------------------------------------- -->
         <div class="status-bar">
             <span>Estado: layout base cargado</span>
@@ -64,4 +73,5 @@
     </div>
 </body>
 <script type="module" src="scripts/main.js"></script>
+
 </html>
