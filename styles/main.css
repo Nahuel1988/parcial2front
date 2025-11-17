@@ -514,24 +514,31 @@ body {
   background-color: #666;
 }
 /* apenas entre la persona hacer */
-.cv-hint {
-  position: absolute;
-  top: 60px;
-  left: calc(var(--sidebar-width) + 200px);
-  background-color: #007acc;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-family: var(--font-mono);
-  z-index: 1000;
-  animation: pulse 1.2s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-  pointer-events: none; /* no bloquea clics */
-}
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.05); opacity: 0.8; }
+}
+.cartel-inicio {
+  margin-top: 6px;
+  background-color: #007acc;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.cartel-global {
+  background-color: #007acc;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: monospace;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  animation: pulse 1.2s ease-in-out infinite;
+  white-space: nowrap;
 }
 

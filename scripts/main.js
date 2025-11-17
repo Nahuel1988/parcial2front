@@ -2,32 +2,26 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM completamente cargado");
 
     initSidebar();
-    initExplorer((item) => {
-        openTab(item.path, item.name); // o lo que uses para mostrar el archivo
-    });
-    console.log("DOM completamente cargado");
-    //initExplorer(onFileSelect);
-
     initEditor();
     initTerminal();
-    
 
+    fetch("archivos.json")
+        .then(res => {
+            if (!res.ok) throw new Error("No se pudo cargar archivos.json");
+            return res.json();
+        })
+        .then(data => {
+            archivos = data;
 
-
-
+            initExplorer((item) => {
+                openTab(item.path, item.name);
+            });
+        })
+        .catch(err => console.error("Error al cargar archivos.json:", err));
 });
+
 let archivos = {};
 
-fetch("archivos.json")
-    .then(res => {
-        if (!res.ok) throw new Error("No se pudo cargar archivos.json");
-        return res.json();
-    })
-    .then(data => {
-        archivos = data;
-        initExplorer(); // solo iniciar explorer después de tener archivos
-    })
-    .catch(err => console.error("Error al cargar archivos.json:", err));
 function detectarTipo(path) {
     const p = path.toLowerCase();
     if (p.endsWith(".html") || p.endsWith(".htm")) return "browser";
@@ -78,24 +72,126 @@ function initExplorer(onFileSelect) {
         })
         .then(data => {
             const tree = document.querySelector(".file-tree");
-            if (tree) renderTree(data, tree, iconPath, onFileSelect);
+            if (tree) {
+                const flags = { firstFolderUsed: false, cartelMostrado: false };
+                const flags2 = { firstFileUsed: false };
+                renderTree(data, tree, iconPath, onFileSelect, flags, flags2);
+
+                // Esperar al final del render
+                setTimeout(() => {
+                    const folderList = document.querySelector(".hint-folder-list");
+                    if (folderList && !flags.cartelMostrado) {
+                        const cartel = crearCartelGlobal("👉 Hacé clic en <strong>CV</strong>");
+                        const rect = folderList.getBoundingClientRect();
+                        cartel.style.top = `${rect.top + window.scrollY - 10}px`;
+                        cartel.style.left = `${rect.left + window.scrollX + 20}px`;
+                        flags.cartelMostrado = true;
+                    }
+                }, 100);
+            }
         })
+
         .catch(err => console.error("Error al cargar árbol de carpetas:", err));
 }
 
-function renderTree(data, container, iconPath, onFileSelect) {
-    data.forEach(item => {
-        const li = document.createElement("li");
-        if (item.type === "folder") {
-            renderFolder(item, li, iconPath, onFileSelect);
-        } else {
-            renderFile(item, li, iconPath, onFileSelect);
-        }
-        container.appendChild(li);
-    });
+function renderTree(data, container, iconPath, onFileSelect, flags, flags2) {
+  data.forEach(item => {
+    const li = document.createElement("li");
+
+    if (item.type === "folder") {
+      if (!flags.firstFolderUsed) {
+        renderFolder2(item, li, iconPath, onFileSelect, flags, flags2);
+        flags.firstFolderUsed = true;
+        console.log("renderFolder2 llamado");
+      } else {
+        renderFolder(item, li, iconPath, onFileSelect, flags, flags2);
+      }
+    } else {
+      renderFile(item, li, iconPath, onFileSelect, flags2);
+    }
+
+    container.appendChild(li);
+
+    // Mostrar cartel sobre el primer folder
+    if (!flags.cartelMostrado && li.querySelector(".hint-folder-list")) {
+      const cartel1 = ubicarCartelDerecha(".hint-folder-list", "👈 Hacé clic en <strong>CV</strong>");
+      flags.cartelMostrado = true;
+
+      const folderHeader = li.querySelector(".folder-header");
+      folderHeader?.addEventListener("click", () => {
+        cartel1?.remove();
+
+        setTimeout(() => {
+          const archivo = document.querySelector(".hint-file");
+          if (archivo) {
+            const cartel2 = ubicarCartelDerecha(".hint-file", "👈 Ahora hacé clic en <strong>index.html</strong>");
+
+            archivo.addEventListener("click", () => {
+              cartel2?.remove();
+
+              // Esperar a que se renderice el botón
+              setTimeout(() => {
+                const boton = document.querySelector(".preview-button");
+                if (boton) {
+                  const cartel3 = ubicarCartelIzquierda(".preview-button", "👉 Hacé clic en <strong>Ver en navegador</strong>");
+
+                  boton.addEventListener("click", () => {
+                    cartel3?.remove();
+                  });
+                }
+              }, 300);
+            });
+          }
+        }, 300);
+      });
+    }
+  });
+}
+function crearCartelGlobal(mensaje) {
+  const div = document.createElement("div");
+  div.className = "cartel-global";
+  div.innerHTML = mensaje;
+  div.style.position = "absolute";
+  document.body.appendChild(div);
+  console.log("Cartel creado:", div);
+  return div;
 }
 
-function renderFolder(item, li, iconPath, onFileSelect) {
+function ubicarCartelDerecha(selector, mensaje) {
+  const target = document.querySelector(selector);
+  if (!target) {
+    console.warn("No se encontró el selector:", selector);
+    return;
+  }
+
+  const rect = target.getBoundingClientRect();
+  const cartel = crearCartelGlobal(mensaje);
+
+  cartel.style.top = `${rect.top + window.scrollY}px`;
+  cartel.style.left = `${rect.right + window.scrollX + 12}px`;
+
+  return cartel;
+}
+function ubicarCartelIzquierda(selector, mensaje) {
+  const target = document.querySelector(selector);
+  if (!target) {
+    console.warn("No se encontró el selector:", selector);
+    return;
+  }
+
+  const rect = target.getBoundingClientRect();
+  const cartel = crearCartelGlobal(mensaje);
+
+  cartel.style.position = "absolute";
+  cartel.style.top = `${rect.top + window.scrollY}px`;
+  cartel.style.left = `${rect.left + window.scrollX - cartel.offsetWidth - 12}px`; // 12px de margen a la izquierda
+
+  return cartel;
+}
+
+
+function renderFolder(item, li, iconPath, onFileSelect, flags, flags2) {
+
     li.className = "folder";
     li.innerHTML = `
     <div class="folder-header" title="Carpeta: ${item.name}">
@@ -107,7 +203,37 @@ function renderFolder(item, li, iconPath, onFileSelect) {
   `;
 
     const fileList = li.querySelector(".file-list");
-    renderTree(item.children, fileList, iconPath, onFileSelect);
+    renderTree(item.children, fileList, iconPath, onFileSelect, flags, flags2);
+
+    const header = li.querySelector(".folder-header");
+    const arrow = li.querySelector(".arrow");
+    const folderIcon = li.querySelector(".folder-icon");
+
+    header.addEventListener("click", () => {
+        li.classList.toggle("open");
+        const isOpen = li.classList.contains("open");
+        arrow.src = `${iconPath}${isOpen ? "chevron-down" : "chevron-right"}.svg`;
+        folderIcon.src = `${iconPath}${isOpen ? "default_folder_opened" : "default_folder"}.svg`;
+    });
+}
+function renderFolder2(item, li, iconPath, onFileSelect, flags, flags2) {
+    console.log("🟢 renderFolder2 llamado para:", item.name)
+    li.className = "folder";
+    li.innerHTML = `
+    <div class="folder-header" title="Carpeta: ${item.name}">
+      <img src="${iconPath}chevron-right.svg" class="arrow" />
+      <img src="${iconPath}default_folder.svg" class="folder-icon" />
+      <span>${item.name}</span>
+    </div>
+    <ul class="file-list hint-folder-list"></ul>
+  `;
+
+    const fileList = li.querySelector("ul.hint-folder-list");
+    if (!fileList) {
+        console.warn("No se encontró el ul.hint-folder-list dentro del primer folder");
+    }
+    renderTree(item.children, fileList, iconPath, onFileSelect, flags, flags2);
+
 
     const header = li.querySelector(".folder-header");
     const arrow = li.querySelector(".arrow");
@@ -121,9 +247,15 @@ function renderFolder(item, li, iconPath, onFileSelect) {
     });
 }
 
-function renderFile(item, li, iconPath, onFileSelect) {
+function renderFile(item, li, iconPath, onFileSelect, flags2) {
     const fileIcon = getIconForExtension(item.name, iconPath);
     li.className = "file";
+
+    if (!flags2.firstFileUsed) {
+        li.classList.add("hint-file");
+        flags2.firstFileUsed = true;
+    }
+
     li.innerHTML = `
     <img src="${fileIcon}" class="icon" />
     <span>${item.name}</span>
@@ -135,6 +267,7 @@ function renderFile(item, li, iconPath, onFileSelect) {
         onFileSelect(item);
     });
 }
+
 
 function getIconForExtension(filename, iconPath) {
     const ext = filename.split(".").pop().toLowerCase();
@@ -151,17 +284,17 @@ function initEditor() {
     }
 }
 function escribirLentoEnEditor(elemento, texto, velocidad = 20) {
-  elemento.textContent = "";
-  let i = 0;
+    elemento.textContent = "";
+    let i = 0;
 
-  function escribir() {
-    if (i < texto.length) {
-      elemento.textContent += texto[i];
-      i++;
-      setTimeout(escribir, velocidad);
+    function escribir() {
+        if (i < texto.length) {
+            elemento.textContent += texto[i];
+            i++;
+            setTimeout(escribir, velocidad);
+        }
     }
-  }
-  escribir();
+    escribir();
 }
 function openTab(path, name) {
     const tabs = document.querySelector(".tabs");
@@ -200,7 +333,7 @@ function openTab(path, name) {
         const btn = document.createElement("button");
         btn.className = "preview-button";
         btn.textContent = "▶ Ver en navegador";
-        
+
         btn.addEventListener("click", () => {
             const htmlActual = content.textContent;
             openBrowserWindow(path, htmlActual, archivos);
@@ -268,7 +401,7 @@ function initTerminal() {
         output.appendChild(respuestaLinea);
 
         output.scrollTop = output.scrollHeight;
-        
+
     }
 }
 
@@ -331,4 +464,19 @@ function closeBrowserWindow() {
     if (wrapper) wrapper.classList.add("hidden");
 }
 // modulo inicio de recorido
+function mostrarCartelInicio(selector, mensaje) {
+    const target = document.querySelector(selector);
+    if (!target) return;
+
+    let cartel = document.createElement("div");
+    cartel.className = ".cartel-inicio";
+    cartel.innerHTML = mensaje;
+    target.appendChild(cartel);
+}
+function crearCartelInicio(mensaje) {
+    const div = document.createElement("div");
+    div.className = "cartel-inicio";
+    div.innerHTML = mensaje;
+    return div;
+}
 
