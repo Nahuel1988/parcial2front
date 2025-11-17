@@ -3,114 +3,57 @@
     "type": "folder",
     "name": "CV",
     "children": [
-      {
-        "type": "file",
-        "name": "cv.html",
-        "execution": "browser",
-        "path": "CV/cv.html"
-      },
-      {
-        "type": "file",
-        "name": "cv.css",
-        "execution": "editor",
-        "path": "CV/cv.css"
-      },
-      {
-        "type": "file",
-        "name": "cv.js",
-        "execution": "editor",
-        "path": "CV/cv.js"
-      },
-      {
-        "type": "file",
-        "name": "miFoto.jpeg",
-        "execution": "browser",
-        "path": "CV/miFoto.jpeg"
-      }
+      { "type": "file", "name": "cv.html", "execution": "browser", "path": "CV/cv.html" },
+      { "type": "file", "name": "cv.css", "execution": "editor", "path": "CV/cv.css" },
+      { "type": "file", "name": "cv.js", "execution": "editor", "path": "CV/cv.js" },
+      { "type": "file", "name": "miFoto.jpeg", "execution": "browser", "path": "CV/miFoto.jpeg" }
     ]
   },
   {
     "type": "folder",
     "name": "Lenguajes",
     "children": [
-      {
-        "type": "file",
-        "name": "lenguajes.html",
-        "execution": "browser",
-        "path": "Lenguajes/lenguajes.html"
-      },
-      {
-        "type": "file",
-        "name": "lenguajes.css",
-        "execution": "editor",
-        "path": "Lenguajes/lenguajes.css"
-      },
-      {
-        "type": "file",
-        "name": "lenguajes.js",
-        "execution": "editor",
-        "path": "Lenguajes/lenguajes.js"
-      },
-      {
-        "type": "file",
-        "name": "avatar_estilo_anime.png",
-        "execution": "browser",
-        "path": "Lenguajes/avatar_estilo_anime.png"
-      }
+      { "type": "file", "name": "lenguajes.html", "execution": "browser", "path": "Lenguajes/lenguajes.html" },
+      { "type": "file", "name": "lenguajes.css", "execution": "editor", "path": "Lenguajes/lenguajes.css" },
+      { "type": "file", "name": "lenguajes.js", "execution": "editor", "path": "Lenguajes/lenguajes.js" },
+      { "type": "file", "name": "avatar_estilo_anime.png", "execution": "browser", "path": "Lenguajes/avatar_estilo_anime.png" }
     ]
   },
   {
     "type": "folder",
     "name": "Habilidades",
     "children": [
-      {
-        "type": "file",
-        "name": "habilidades.html",
-        "execution": "browser",
-        "path": "Habilidades/habilidades.html"
-      },
-      {
-        "type": "file",
-        "name": "habilidades.css",
-        "execution": "editor",
-        "path": "Habilidades/habilidades.css"
-      },
-      {
-        "type": "file",
-        "name": "habilidades.js",
-        "execution": "editor",
-        "path": "Habilidades/habilidades.js"
-      },
-      {
-        "type": "file",
-        "name": "avatar_estilo_anime.png",
-        "execution": "browser",
-        "path": "Habilidades/avatar_estilo_anime.png"
-      }
+      { "type": "file", "name": "habilidades.html", "execution": "browser", "path": "Habilidades/habilidades.html" },
+      { "type": "file", "name": "habilidades.css", "execution": "editor", "path": "Habilidades/habilidades.css" },
+      { "type": "file", "name": "habilidades.js", "execution": "editor", "path": "Habilidades/habilidades.js" },
+      { "type": "file", "name": "avatar_estilo_anime.png", "execution": "browser", "path": "Habilidades/avatar_estilo_anime.png" }
     ]
   },
   {
     "type": "folder",
     "name": "Proyectos",
     "children": [
-      {
-        "type": "file",
-        "name": "proyectos.html",
-        "execution": "browser",
-        "path": "Proyectos/proyectos.html"
-      },
-      {
-        "type": "file",
-        "name": "proyectos.css",
-        "execution": "editor",
-        "path": "Proyectos/proyectos.css"
-      },
-      {
-        "type": "file",
-        "name": "proyectos.js",
-        "execution": "editor",
-        "path": "Proyectos/proyectos.js"
-      }
+      { "type": "file", "name": "proyectos.html", "execution": "browser", "path": "Proyectos/proyectos.html" },
+      { "type": "file", "name": "proyectos.css", "execution": "editor", "path": "Proyectos/proyectos.css" },
+      { "type": "file", "name": "proyectos.js", "execution": "editor", "path": "Proyectos/proyectos.js" }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "Contacto",
+    "children": [
+      { "type": "file", "name": "contacto.html", "execution": "browser", "path": "Contacto/contacto.html" },
+      { "type": "file", "name": "contacto.css", "execution": "editor", "path": "Contacto/contacto.css" },
+      { "type": "file", "name": "contacto.js", "execution": "editor", "path": "Contacto/contacto.js" }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "CV_Completo",
+    "children": [
+      { "type": "file", "name": "cv_completo.html", "execution": "browser", "path": "CV_Completo/cv_completo.html" },
+      { "type": "file", "name": "cv_completo.css", "execution": "editor", "path": "CV_Completo/cv_completo.css" },
+      { "type": "file", "name": "cv_completo.js", "execution": "editor", "path": "CV_Completo/cv_completo.js" }
     ]
   }
 ]
